@@ -2,29 +2,24 @@ package com.nalldev.spotplace
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.nalldev.spotplace.databinding.ActivityMainBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
-        mapFragment?.getMapAsync(this)
+class MainActivity : AppCompatActivity(){
+    private val viewModel : MainViewModel by viewModel()
+    private val binding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        val sydney = LatLng(-33.852, 151.211)
-        googleMap.addMarker(
-            MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney")
-        )
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+
+        viewModel.weather.observe(this) {
+            binding.apply {
+                tvTemp.text = String.format("%s : %s %s", it[1].name, it[1].value, it[1].unit)
+                tvHumidity.text = String.format("%s : %s %s", it[0].name, it[0].value, it[0].unit)
+            }
+        }
     }
 }
